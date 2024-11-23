@@ -1,0 +1,129 @@
+﻿@page "/vechiles/edit"
+@using Microsoft.EntityFrameworkCore
+@using CarRentalManagement.Domain
+@inject IDbContextFactory<CarRentalManagement.Data.CarRentalManagementContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Vechile</h2>
+<hr />
+@if (Vechile is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Vechile" OnValidSubmit="UpdateVechile" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Vechile.Id" value="@Vechile.Id" />
+                <div class="mb-3">
+                    <label for="year" class="form-label">Year:</label>
+                    <InputNumber id="year" @bind-Value="Vechile.Year" class="form-control" />
+                    <ValidationMessage For="() => Vechile.Year" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="licenseplatenumber" class="form-label">LicensePlateNumber:</label>
+                    <InputText id="licenseplatenumber" @bind-Value="Vechile.LicensePlateNumber" class="form-control" />
+                    <ValidationMessage For="() => Vechile.LicensePlateNumber" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="makeid" class="form-label">MakeId:</label>
+                    <InputNumber id="makeid" @bind-Value="Vechile.MakeId" class="form-control" />
+                    <ValidationMessage For="() => Vechile.MakeId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="modelid" class="form-label">ModelId:</label>
+                    <InputNumber id="modelid" @bind-Value="Vechile.ModelId" class="form-control" />
+                    <ValidationMessage For="() => Vechile.ModelId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="colourid" class="form-label">ColourId:</label>
+                    <InputNumber id="colourid" @bind-Value="Vechile.ColourId" class="form-control" />
+                    <ValidationMessage For="() => Vechile.ColourId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="Vechile.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => Vechile.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="Vechile.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => Vechile.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="Vechile.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => Vechile.UpdatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="Vechile.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => Vechile.CreatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/vechiles">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Vechile? Vechile { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Vechile ??= await context.Vechile.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Vechile is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateVechile()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Vechile!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!VechileExists(Vechile!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/vechiles");
+    }
+
+    private bool VechileExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Vechile.Any(e => e.Id == id);
+    }
+}

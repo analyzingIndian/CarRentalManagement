@@ -1,0 +1,62 @@
+﻿@page "/vechiles/details"
+@using Microsoft.EntityFrameworkCore
+@using CarRentalManagement.Domain
+@inject IDbContextFactory<CarRentalManagement.Data.CarRentalManagementContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Vechile</h2>
+    <hr />
+    @if (vechile is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Year</dt>
+            <dd class="col-sm-10">@vechile.Year</dd>
+            <dt class="col-sm-2">LicensePlateNumber</dt>
+            <dd class="col-sm-10">@vechile.LicensePlateNumber</dd>
+            <dt class="col-sm-2">MakeId</dt>
+            <dd class="col-sm-10">@vechile.MakeId</dd>
+            <dt class="col-sm-2">ModelId</dt>
+            <dd class="col-sm-10">@vechile.ModelId</dd>
+            <dt class="col-sm-2">ColourId</dt>
+            <dd class="col-sm-10">@vechile.ColourId</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@vechile.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@vechile.DateUpdated</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@vechile.UpdatedBy</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@vechile.CreatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/vechiles/edit?id={vechile.Id}")">Edit</a> |
+            <a href="@($"/vechiles")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Vechile? vechile;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        vechile = await context.Vechile.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (vechile is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
